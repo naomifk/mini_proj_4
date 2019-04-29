@@ -5,3 +5,46 @@ output: html_document
 
 Hey Abby here's the beginning of our R Markdown for MP4
 
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(knitr)
+library(RMySQL)
+db <- dbConnect(MySQL(), 
+                host = "scidb.smith.edu", 
+                user = "mth292", 
+                password = "RememberPi", 
+                dbname = "imdb")
+knitr::opts_chunk$set(connection = db, max.print = 20)
+```
+
+```{r, message=FALSE, warning=FALSE}
+female.imdb.nudity <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
+GROUP BY production_year
+ORDER BY production_year;")
+
+female.nudity.graph <- ggplot(female.imdb.nudity, aes(x=production_year, y=COUNT))+
+  geom_line()
+
+female.nudity.graph
+```
+
+```{r, message=FALSE, warning=FALSE}
+male.imdb.nudity <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'male-nudity' AND production_year IS NOT NULL
+GROUP BY production_year
+ORDER BY production_year;")
+
+male.nudity.graph <- ggplot(male.imdb.nudity, aes(x=production_year, y=COUNT))+
+  geom_line()
+
+male.nudity.graph
+```
