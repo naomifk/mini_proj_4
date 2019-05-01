@@ -73,8 +73,10 @@ joined.nudity <- joined.nudity %>%
 nudity.plot <- ggplot(joined.nudity, aes(production_year)) + 
   geom_line(aes(y = COUNT.x, color = "COUNT.x"))+
   geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
-  scale_color_manual(values=c("COUNT.x"="#588fe8", "COUNT.y"="#e27ac0"))+
-  ggtitle("The Difference in Female Nudity vs Male Nudity on Screen")+
+  scale_color_manual(values=c("COUNT.x"="#588fe8", "COUNT.y"="#cc0066"),  
+              breaks=c("COUNT.y","COUNT.x"),
+              labels = c("Female nudity", "Male nudity"))+
+  ggtitle("Female Nudity versus Male Nudity on Screen")+
   theme_minimal()
 
 nudity.plot
@@ -85,8 +87,10 @@ joined.nudity.directed <- joined.nudity %>%
 directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year))+
   geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
   geom_line(aes(y = COUNT, color = "COUNT"))+
-  scale_color_manual(values=c("COUNT.y"="#cc0066", "COUNT"="#ff9933"))+
-  ggtitle("The Difference Between Movies with Female Nudity and Movies Directed by Women")+
+  scale_color_manual(values=c("COUNT.y"="#cc0066", "COUNT"="#ff9933"),
+                     breaks =c("COUNT.y","COUNT"),
+              labels = c("Female nudity", "Directed by woman"))+
+  ggtitle("Movies with Female Nudity versus Movies Directed by Women")+
   theme_minimal()
 
 directed_v_nudity_plot
