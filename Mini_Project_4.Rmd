@@ -1,9 +1,9 @@
 ---
 title: "Mini_Project_4"
-output: html_document
+output:
+  html_document:
+   code_folding: hide
 ---
-
-Hey Abby here's the beginning of our R Markdown for MP4
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -17,7 +17,7 @@ db <- dbConnect(MySQL(),
 knitr::opts_chunk$set(connection = db, max.print = 20)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE,fig.show="hold", out.width="50%"}
 female.nudity <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
@@ -31,9 +31,7 @@ female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
   geom_line()
 
 female.nudity.graph
-```
 
-```{r, message=FALSE, warning=FALSE}
 male.nudity <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
@@ -65,7 +63,7 @@ female.directed.graph <- ggplot(female.directed, aes(x=production_year, y=COUNT)
 female.directed.graph
 ```
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
 joined.nudity <- male.nudity %>%
   inner_join(female.nudity, by = "production_year")
 
@@ -76,7 +74,21 @@ nudity.plot <- ggplot(joined.nudity, aes(production_year)) +
   geom_line(aes(y = COUNT.x, color = "COUNT.x"))+
   geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
   scale_color_manual(values=c("COUNT.x"="#588fe8", "COUNT.y"="#e27ac0"))+
+  ggtitle("The Difference in Female Nudity vs Male Nudity on Screen")+
   theme_minimal()
 
 nudity.plot
+
+joined.nudity.directed <- joined.nudity %>% 
+  inner_join(female.directed, by="production_year")
+
+directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year))+
+  geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
+  geom_line(aes(y = COUNT, color = "COUNT"))+
+  scale_color_manual(values=c("COUNT.y"="#cc0066", "COUNT"="#ff9933"))+
+  ggtitle("The Difference Between Movies with Female Nudity and Movies Directed by Women")+
+  theme_minimal()
+
+directed_v_nudity_plot
 ```
+
