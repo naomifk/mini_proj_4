@@ -28,7 +28,8 @@ GROUP BY production_year
 ORDER BY production_year;")
 
 female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
-  geom_line()
+  geom_line()+
+  theme_minimal()
 
 female.nudity.graph
 
@@ -42,34 +43,44 @@ GROUP BY production_year
 ORDER BY production_year;")
 
 male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT))+
-  geom_line()
+  geom_line()+
+  theme_minimal()
 
 male.nudity.graph
 ```
 
 ```{r, message=FALSE, warning=FALSE}
-female.directed <- db %>%
-  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
-FROM keyword AS k
-LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
-LEFT JOIN title AS t ON t.id=mk.movie_id
-WHERE kind_id='1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
-GROUP BY production_year
-ORDER BY production_year;")
-
-female.directed.graph <- ggplot(female.directed, aes(x=production_year, y=COUNT))+
-  geom_line()
-
-female.directed.graph
-```
-
-```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
 joined.nudity <- male.nudity %>%
   inner_join(female.nudity, by = "production_year")
 
 joined.nudity <- joined.nudity %>% 
   filter(production_year <= 2016)
+```
 
+```{r, message=FALSE, warning=FALSE}
+female.nudity.total <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
+GROUP BY keyword;")
+
+male.nudity.total <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'male-nudity' AND production_year IS NOT NULL
+GROUP BY keyword;")
+```
+
+```{r, message=FALSE, warning=FALSE}
+joined.nudity.total <- male.nudity.total %>%
+  inner_join(female.nudity.total, by = "kind_id")
+```
+
+```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
 nudity.plot <- ggplot(joined.nudity, aes(production_year)) + 
   geom_line(aes(y = COUNT.x, color = "COUNT.x"))+
   geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
@@ -81,6 +92,45 @@ nudity.plot <- ggplot(joined.nudity, aes(production_year)) +
 
 nudity.plot
 
+nudity.plot.bar <- ggplot(joined.nudity.total)+
+  geom_bar(aes(x=keyword.x, y = COUNT.x, fill = "COUNT.x"), stat="identity", position="dodge", width = 0.5)+
+  geom_bar(aes(x=keyword.y, y = COUNT.y, fill = "COUNT.y"), stat="identity", position="dodge", width = 0.5)+
+  scale_fill_manual(values=c("COUNT.x"="#588fe8", "COUNT.y"="#cc0066"),  
+              breaks=c("COUNT.y","COUNT.x"),
+              labels = c("Female nudity", "Male nudity"))+
+  ggtitle("Total Movies with Male versus Female Nudity")+
+  theme_minimal()
+
+nudity.plot.bar
+```
+
+```{r, message=FALSE, warning=FALSE}
+female.directed <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
+GROUP BY production_year
+ORDER BY production_year;")
+```
+
+```{r, message=FALSE, warning=FALSE}
+female.directed.total <- db %>%
+  dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
+FROM keyword AS k
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id
+LEFT JOIN title AS t ON t.id=mk.movie_id
+WHERE kind_id='1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
+GROUP BY keyword;")
+```
+
+```{r, message=FALSE, warning=FALSE}
+joined.female.total <- female.nudity.total %>%
+  inner_join(female.directed.total, by = "kind_id")
+```
+
+```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
 joined.nudity.directed <- joined.nudity %>% 
   inner_join(female.directed, by="production_year")
 
@@ -94,5 +144,16 @@ directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year))+
   theme_minimal()
 
 directed_v_nudity_plot
+
+directed_v_nudity_bar <- ggplot(joined.female.total)+
+  geom_bar(aes(x=keyword.x, y = COUNT.x, fill = "COUNT.x"), stat="identity", position="dodge", width = 0.5)+
+  geom_bar(aes(x=keyword.y, y = COUNT.y, fill = "COUNT.y"), stat="identity", position="dodge", width = 0.5)+
+  scale_fill_manual(values=c("COUNT.x"="#cc0066", "COUNT.y"="#ff9933"),  
+              breaks=c("COUNT.x", "COUNT.y"),
+              labels = c("Female nudity", "Directed by female"))+
+  ggtitle("Female Nudity vs Directed by Female")+
+  theme_minimal()
+
+directed_v_nudity_bar
 ```
 
