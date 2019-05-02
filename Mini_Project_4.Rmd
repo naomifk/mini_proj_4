@@ -108,6 +108,8 @@ nudity.plot.bar <- ggplot(joined.nudity.total)+
               breaks=c("COUNT.y","COUNT.x"),
               labels = c("Female nudity", "Male nudity"))+
   ggtitle("Total Movies with Male versus Female Nudity")+
+   xlab("Sex of Nudity")+
+  ylab("Number of Movies Total")+
   theme_minimal()
 
 nudity.plot.bar
@@ -163,6 +165,8 @@ directed_v_nudity_bar <- ggplot(joined.female.total)+
               breaks=c("COUNT.x", "COUNT.y"),
               labels = c("Female nudity", "Directed by female"))+
   ggtitle("Female Nudity vs Directed by Female")+
+   xlab("Category")+
+  ylab("Number of Movies Total")+
   theme_minimal()
 
 directed_v_nudity_bar
