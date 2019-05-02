@@ -28,6 +28,9 @@ GROUP BY production_year
 ORDER BY production_year;")
 
 female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
+  xlab("Production Year")+
+  ylab("Number of Movies")+
+  ggtitle("Female Nudity in Movies")+
   geom_line()+
   theme_minimal()
 
@@ -44,6 +47,9 @@ ORDER BY production_year;")
 
 male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT))+
   geom_line()+
+   xlab("Production Year")+
+  ylab("Number of Movies")+
+  ggtitle("Male Nudity in Movies")+
   theme_minimal()
 
 male.nudity.graph
@@ -88,6 +94,8 @@ nudity.plot <- ggplot(joined.nudity, aes(production_year)) +
               breaks=c("COUNT.y","COUNT.x"),
               labels = c("Female nudity", "Male nudity"))+
   ggtitle("Female Nudity versus Male Nudity on Screen")+
+  xlab("Production Year")+
+  ylab("Number of Movies")+
   theme_minimal()
 
 nudity.plot
@@ -141,6 +149,8 @@ directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year))+
                      breaks =c("COUNT.y","COUNT"),
               labels = c("Female nudity", "Directed by woman"))+
   ggtitle("Movies with Female Nudity versus Movies Directed by Women")+
+  xlab("Production Year")+
+  ylab("Number of Movies")+
   theme_minimal()
 
 directed_v_nudity_plot
