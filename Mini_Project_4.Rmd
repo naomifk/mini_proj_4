@@ -1,5 +1,5 @@
 ---
-title: "Mini_Project_4"
+title: "Mini Project 4"
 output:
   html_document:
    code_folding: hide
@@ -31,7 +31,7 @@ female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
   xlab("Production Year")+
   ylab("Number of Movies")+
   ggtitle("Female Nudity in Movies")+
-  geom_line()+
+  geom_line(color="#cc0066")+
   theme_minimal()
 
 female.nudity.graph
@@ -50,6 +50,7 @@ male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT))+
    xlab("Production Year")+
   ylab("Number of Movies")+
   ggtitle("Male Nudity in Movies")+
+  geom_line(color="#588fe8")+
   theme_minimal()
 
 male.nudity.graph
