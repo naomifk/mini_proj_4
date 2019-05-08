@@ -1,13 +1,22 @@
 ---
-title: "Mini Project 4"
+title: <center> A Tit-illating Look at Nudity in Films <center>
 output:
   html_document:
    code_folding: hide
    theme: "journal"
 ---
-By:Abby Allen and Naomi Forman-Katz
+By: Abby Allen and Naomi Forman-Katz
+
+
 
 `r format(Sys.Date(), "%B %e, %Y")`
+
+```{r, eval=FALSE}
+install.packages("tidyverse")
+install.packages("knitr")
+install.packages("RMySQL")
+```
+
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)
@@ -20,6 +29,12 @@ db <- dbConnect(MySQL(),
                 dbname = "imdb")
 knitr::opts_chunk$set(connection = db, max.print = 20)
 ```
+
+![](https://cdn1.thr.com/sites/default/files/imagecache/landscape_928x523/2012/03/kate_winslet_in_titanic_3d.jpg)
+
+What do Titanic, Pulp Fiction, and Jaws have in common? Besides being universally acknowledged as classic films, they all display nudity on screen. What used to be a relatively rare occurrence in film is now entirely commonplace; seeing a nude body in a movie is almost guaranteed. And as most people who watch movies could tell you, you are much more likely to see a naked woman on screen than a naked man. In this article, we aim to examine just how much more common it is for a movie to feature female nudity than male nudity. We will explore this phenomenon through empirical data and through examining the social implications of the on-screen objectification of the female body. In the hopes of fully understanding the objectification of women in film, we will also compare the number of films containing female nudity to the number of films that have been directed by women. 
+
+A recent study from Mount Saint Mary's University found that actresses are almost three times as likely as their male counterparts to be required to participate in nude scenes. Even worse, according to a 2005 University of Pennsylvania study, 57% of US teenagers, ages 14 to 16, identified television, film and other media as the primary source of information about sex and gender.^[https://www.cnn.com/2017/07/25/opinions/nudity-hollywood-opinion-davis/index.htm] If female actresses are much more likely to be nude on-screen, what message is that sending our young people, who formulate their ideas about the world from movies?
 
 ```{r, message=FALSE, warning=FALSE,fig.show="hold", out.width="50%"}
 female.nudity <- db %>%
@@ -82,6 +97,14 @@ male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT)) +
 male.nudity.graph
 ```
 
+
+
+Before delving into the implications of female nudity, it is first necessary to consider the history of nudity on-screen. The Motion Picture Production Code, commonly known as the Hays Code, was adopted by the Motion Picture Association of America (MPAA) in 1930 to limit what was acceptable for movies produced for a public audience in the U.S. This code, which all but banned profanity, mention of drugs or other illicit activity, and nudity, was strictly enforced in the movie-making industry until the 1950s. Around this time, the movie industry was faced with competitive threats, first from television; in order to compete, Hollywood needed to offer the public something it could not get on television, which was under an even more restrictive censorship code. 
+
+In 1952, in the case of Joseph Burstyn, Inc. v. Wilson, the U.S. Supreme Court unanimously overruled its 1915 decision (Mutual Film Corporation v. Industrial Commission of Ohio) and held that motion pictures were entitled to protection under the First Amendment. And in 1956, some areas of the code were re-written, making the ban on sexual allusions less strict. By the late 1960s, enforcement had become nearly impossible, and the Hays Code was abandoned entirely.^[ Schumach, Murray (1964). The Face On The Cutting Room Floor: The Story Of Movie And Television Censorship. New York: William Morrow and Company. ISBN 978-0-3068-0009-2.] 
+
+As visible on the graphs above, the occurrence of nudity in films worldwide seems to mirror this pattern; the number of films per year both containing male nudity and female nudity stays relatively low until the mid 1950s, when there is a sharp spike. However, the male nudity spike comes a few years later than the spike in female nudity, and never reaches nearly the same height. 
+
 ```{r, message=FALSE, warning=FALSE}
 joined.nudity <- male.nudity %>%
   inner_join(female.nudity, by = "production_year")
@@ -134,10 +157,16 @@ scale_fill_manual(values = c("COUNT.x" = "#588fe8", "COUNT.y" = "#cc0066"),
               breaks=c("COUNT.y","COUNT.x"),
               labels = c("Female nudity", "Male nudity")) +
 ggtitle("Total Movies with Male versus Female Nudity") +
+  xlab("Type of Nudity") +
+  ylab("Number of Movies") +
 theme_minimal()
 
 nudity.plot.bar
 ```
+It is clear from this graph that female nudity is much more common than male nudity; this undoubtedly sends a message to all those who watch movies that the female body is commodifiable and objectifiable. In over the last decade, when many strides towards gender equality have been made across the world, the ratio of male to female screen time has remained 2.3-to-1, while women make up an average of 30.4% of the speaking characters.^[https://www.msmu.edu/media/website/content-assets/msmuedu/home/status-of-women-and-girls-in-california/documents/CollectifFINAL.pdf] 
+
+If people are getting their messages about culture from movies, and women are naked more and speaking less than men, it is clear that we still have a long way to go in terms of making strides for gender equality reflected in the media we consume. And it’s not just for the consumers that this pattern is problematic; actress are expected to strip down much more than their male counterparts. Often, actresses who opt out of nudity and sex scenes can take a career hit. Recently, a television actress who refused to agree to an onscreen sexual relationship with a main character had her multiple show appearances cut down to only one.^[https://www.cnn.com/2017/07/25/opinions/nudity-hollywood-opinion-davis/index.html] Expecting actresses to appear nude, which is rarely an expectation for male actors, only furthers gender inequity in the workplace.
+
 
 ```{r, message=FALSE, warning=FALSE}
 female.directed <- db %>%
@@ -189,8 +218,19 @@ directed_v_nudity_bar <- ggplot(joined.female.total) +
               breaks=c("COUNT.x", "COUNT.y"),
               labels = c("Female nudity", "Directed by female")) +
   ggtitle("Female Nudity vs Directed by Female") +
+  xlab("Category") +
+  ylab("Number of Movies") +
   theme_minimal()
 
 directed_v_nudity_bar
 ```
+But what is the cause of disproportionate female nudity in film? Besides a wider culture of the objectification of women, why do films so heavily contribute to this problem, instead of mitigating one? One possible reason is the lack of women in executive positions in movie production. For example, among the top 250 films of 2017, 88% had no women directors, 83% had no women writers, and 96% had no women cinematographers. When women are not involved behind the scenes and making the calls about how movies are made, it is no wonder that they are disproportionately objectified in the final product.^[https://www.msmu.edu/media/website/content-assets/msmuedu/home/status-of-women-and-girls-in-california/documents/CollectifFINAL.pdf
+]
+
+Of course, there may be alternate explanations for the preponderance of female nudity in film. “Nudity” is a broad category, and may include frontal nudity: a woman’s bare chest would be flagged as nudity, while a man’s bare chest likely would not. This may be a partial cause of the disproportionate counts of female nudity. Additionally, this data is taken from IMDb page keywords; it is possible that the writers of these pages happened to mention female nudity more than male nudity on films’ IMDb pages, not because it necessarily occurred more.
+
+But whatever the cause, it is clear there is a problem. In the era of #TimesUp and #MeToo, we are at a turning point in working to combat gender inequality and sexual harassment in Hollywood and the workplace at large. When women are consistently portrayed as mere sex objects, and are not given a voice in media production that influences the next generation, there must be a change. This is in no way an endorsement of the return of the Hays Code, but rather a call for those who make movies, and those who consume them, to think critically about the way women are portrayed in media. 
+
+
+Word count: `r wordcountaddin::word_count()`
 
