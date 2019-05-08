@@ -8,7 +8,6 @@ output:
 By: Abby Allen and Naomi Forman-Katz
 
 
-
 `r format(Sys.Date(), "%B %e, %Y")`
 
 ```{r, eval=FALSE}
