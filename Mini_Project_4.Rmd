@@ -21,7 +21,7 @@ install.packages("RMySQL")
 #libraries----
 library(tidyverse)
 library(knitr)
-library(RMySQL) #connect to SQL
+library(RMySQL) #connect to SQL 
 db <- dbConnect(MySQL(), 
                 host = "scidb.smith.edu", 
                 user = "mth292", 
