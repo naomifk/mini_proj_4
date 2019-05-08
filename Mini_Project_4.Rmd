@@ -10,6 +10,7 @@ By: Abby Allen and Naomi Forman-Katz
 `r format(Sys.Date(), "%B %e, %Y")`
 
 ```{r, eval=FALSE}
+#install packages----
 install.packages("tidyverse")
 install.packages("knitr")
 install.packages("RMySQL")
@@ -17,9 +18,10 @@ install.packages("RMySQL")
 
 
 ```{r, message=FALSE, warning=FALSE}
+#libraries----
 library(tidyverse)
 library(knitr)
-library(RMySQL)
+library(RMySQL) #connect to SQL
 db <- dbConnect(MySQL(), 
                 host = "scidb.smith.edu", 
                 user = "mth292", 
@@ -30,20 +32,22 @@ knitr::opts_chunk$set(connection = db, max.print = 20)
 
 ![](https://cdn1.thr.com/sites/default/files/imagecache/landscape_928x523/2012/03/kate_winslet_in_titanic_3d.jpg)
 
-What do Titanic, Pulp Fiction, and Jaws have in common? Besides being universally acknowledged as classic films and being on the list of the [most watched movies of all time](https://www.imdb.com/list/ls053826112/), they all display nudity on screen.. What used to be a relatively rare occurrence in film is now entirely commonplace; seeing a nude body in a movie is almost guaranteed. And as most people who watch movies could tell you, you are much more likely to see a naked woman on screen than a naked man. In this article, we aim to examine just how much more common it is for a movie to feature female nudity than male nudity. We will explore this phenomenon through empirical data and through examining the social implications of the on-screen objectification of the female body. In the hopes of fully understanding the objectification of women in film, we will also compare the number of films containing female nudity to the number of films that have been directed by women. 
+What do *Titanic*, *Pulp Fiction*, and *Jaws* have in common? Besides being universally acknowledged as classic films and being on the list of the [most watched movies of all time](https://www.imdb.com/list/ls053826112/), they all display nudity on screen. What used to be a relatively rare occurrence in film is now entirely commonplace; seeing a nude body in a movie is almost guaranteed. And as most people who watch movies could tell you, you are much more likely to see a naked woman on screen than a naked man. In this article, we aim to examine just how much more common it is for a movie to feature female nudity than male nudity. We will explore this phenomenon through empirical data and through examining the social implications of the on-screen objectification of the female body. In the hopes of fully understanding the objectification of women in film, we will also compare the number of films containing female nudity to the number of films that have been directed by women. 
 
 A recent study from Mount Saint Mary's University found that actresses are almost three times as likely as their male counterparts to be required to participate in nude scenes. Even worse, according to a 2005 University of Pennsylvania study, 57% of US teenagers, ages 14 to 16, identified television, film and other media as the primary source of information about sex and gender.^[Davis, RaVal. "Can Nudity Crack Hollywood's Double Standard?" CNN. July 25, 2017. https://www.cnn.com/2017/07/25/opinions/nudity-hollywood-opinion-davis/.] If female actresses are much more likely to be nude on-screen, what message is that sending our young people, who formulate their ideas about the world from movies?
 
 ```{r, message=FALSE, warning=FALSE,fig.show="hold", out.width="50%"}
+#use SQL to wrangle data for female nudity----
 female.nudity <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
-LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyowrd
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
 LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
 WHERE kind_id='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
 GROUP BY production_year
 ORDER BY production_year;")
 
+#graph female nudity in movies
 female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
   xlab("Production Year") +
   ylab("Number of Movies") +
@@ -62,16 +66,17 @@ female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
   theme_minimal()
 
 female.nudity.graph
-
+#wrangle data for male nudity in movies
 male.nudity <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
-LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index
-LEFT JOIN title AS t ON t.id=mk.movie_id #join on index
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
+LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
 WHERE kind_id='1' AND keyword = 'male-nudity' AND production_year IS NOT NULL
 GROUP BY production_year
 ORDER BY production_year;")
 
+#graph male nudity
 male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT)) +
   geom_line() +
   xlab("Production Year") +
@@ -104,14 +109,16 @@ In 1952, in the case of Joseph Burstyn, Inc. v. Wilson, the U.S. Supreme Court u
 As visible on the graphs above, the occurrence of nudity in films worldwide seems to mirror this pattern; the number of films per year both containing male nudity and female nudity stays relatively low until the mid 1950s, when there is a sharp spike. However, the male nudity spike comes a few years later than the spike in female nudity, and never reaches nearly the same height. 
 
 ```{r, message=FALSE, warning=FALSE}
+#join female nudity and male nudity datasets----
 joined.nudity <- male.nudity %>%
   inner_join(female.nudity, by = "production_year")
 
-joined.nudity <- joined.nudity %>% 
+joined.nudity <- joined.nudity %>% #filter out data past 2016
   filter(production_year <= 2016)
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+#count total movies with female nudity----
 female.nudity.total <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
 FROM keyword AS k
@@ -120,6 +127,7 @@ LEFT JOIN title AS t ON t.id = mk.movie_id #join on index movie_id
 WHERE kind_id ='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
 GROUP BY keyword;")
 
+#count total movies with male nudity
 male.nudity.total <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
 FROM keyword AS k
@@ -130,11 +138,13 @@ GROUP BY keyword;")
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+#join count datasets----
 joined.nudity.total <- male.nudity.total %>%
   inner_join(female.nudity.total, by = "kind_id")
 ```
 
 ```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
+#plot comparing male nudity and female nudity by year----
 nudity.plot <- ggplot(joined.nudity, aes(production_year)) + 
   geom_line(aes(y = COUNT.x, color = "COUNT.x")) +
   geom_line(aes(y = COUNT.y, color = "COUNT.y")) +
@@ -148,6 +158,7 @@ nudity.plot <- ggplot(joined.nudity, aes(production_year)) +
 
 nudity.plot
 
+# plot comparing total counts of movies with female nudity and male nudity
 nudity.plot.bar <- ggplot(joined.nudity.total) +
 geom_bar(aes(x = keyword.x, y = COUNT.x, fill = "COUNT.x"), stat = "identity", position = "dodge", width = 0.5) +
 geom_bar(aes(x = keyword.y, y = COUNT.y, fill = "COUNT.y"), stat = "identity", position="dodge", width = 0.5)+
@@ -167,6 +178,7 @@ If people are getting their messages about culture from movies, and women are na
 
 
 ```{r, message=FALSE, warning=FALSE}
+#wrangle data on female directors using SQL----
 female.directed <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
@@ -178,6 +190,7 @@ ORDER BY production_year;")
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+#count total number of movies that have been directed by a woman----
 female.directed.total <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
 FROM keyword AS k
@@ -188,14 +201,17 @@ GROUP BY keyword;")
 ```
 
 ```{r, message=FALSE, warning=FALSE}
+#join female nudity counts and female director counts datasets---
 joined.female.total <- female.nudity.total %>%
   inner_join(female.directed.total, by = "kind_id")
 ```
 
 ```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
+# join female nudity and female director datasets----
 joined.nudity.directed <- joined.nudity %>% 
   inner_join(female.directed, by="production_year")
 
+#plot comparing female nudity and female directors
 directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year)) +
   geom_line(aes(y = COUNT.y, color = "COUNT.y")) +
   geom_line(aes(y = COUNT, color = "COUNT")) +
@@ -209,6 +225,7 @@ directed_v_nudity_plot <- ggplot(joined.nudity.directed, aes(production_year)) +
 
 directed_v_nudity_plot
 
+#plot comparing the total number of movies containing female nudity vs total numbers of movies directed by women
 directed_v_nudity_bar <- ggplot(joined.female.total) +
   geom_bar(aes(x = keyword.x, y = COUNT.x, fill = "COUNT.x"), stat = "identity", position = "dodge", width = 0.5) +
   geom_bar(aes(x = keyword.y, y = COUNT.y, fill = "COUNT.y"), stat = "identity", position = "dodge", width = 0.5) +
@@ -225,10 +242,12 @@ directed_v_nudity_bar
 But what is the cause of disproportionate female nudity in film? Besides a wider culture of the objectification of women, why do films so heavily contribute to this problem, instead of mitigating one? One possible reason is the lack of women in executive positions in movie production. For example, among the top 250 films of 2017, 88% had no women directors, 83% had no women writers, and 96% had no women cinematographers. When women are not involved behind the scenes and making the calls about how movies are made, it is no wonder that they are disproportionately objectified in the final product.^[Heldman, Caroline, Phd, and Nicole Haggard,, Phd. "Collectif: A Space Dedicated to the Advancement of Women and Girls." 2018. https://www.msmu.edu/media/website/content-assets/msmuedu/home/status-of-women-and-girls-in-california/documents/CollectifFINAL.pdf
 ]
 
-Of course, there may be alternate explanations for the preponderance of female nudity in film. “Nudity” is a broad category, and may include frontal nudity: a woman’s bare chest would be flagged as nudity, while a man’s bare chest likely would not. This may be a partial cause of the disproportionate counts of female nudity. Additionally, this data is taken from IMDb page keywords; it is possible that the writers of these pages happened to mention female nudity more than male nudity on films’ IMDb pages, not because it necessarily occurred more.
 
-But whatever the cause, it is clear there is a problem. In the era of #TimesUp and #MeToo, we are at a turning point in working to combat gender inequality and sexual harassment in Hollywood and the workplace at large. When women are consistently portrayed as mere sex objects, and are not given a voice in media production that influences the next generation, there must be a change. This is in no way an endorsement of the return of the Hays Code, but rather a call for those who make movies, and those who consume them, to think critically about the way women are portrayed in media. 
+Of course, there may be alternate explanations for the preponderance of female nudity in film. “Nudity” is a broad category, and may include frontal nudity: a woman’s bare chest would be flagged as nudity, while a man’s bare chest likely would not. This may be a partial cause of the disproportionate counts of female nudity. There are also some films that feature nudity in a non-sexual way: *Schindler’s List*, for example, contains [scenes with full-frontal nudity](https://kids-in-mind.com/s/schindlers_list_1994__6105.htm), but this is to demonstrate the horrors of the Holocaust, not for sexual thrill. Painting all nudity with a broad brush can get tricky. Additionally, this data is taken from IMDb page keywords; it is possible that the writers of these pages happened to mention female nudity more than male nudity on films’ IMDb pages, not because it necessarily occurred more.
 
 
-Word count: `r wordcountaddin::word_count()`
+But whatever the cause, it is clear there is a problem. In the era of #TimesUp and #MeToo, we are at a turning point in working to combat gender inequality and sexual harassment in Hollywood and the workplace at large. When women are consistently portrayed as mere sex objects, and are not given a voice in media production that influences the next generation, there must be a change. This is in no way an endorsement of the return of the Hays Code, but rather a call for those who make movies, and those who consume them, to think critically about the way women are portrayed in media.
+^[https://github.com/naomifk/mini_proj_4]
+
+
 
