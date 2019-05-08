@@ -36,14 +36,16 @@ female.nudity.graph <- ggplot(female.nudity, aes(x=production_year, y=COUNT))+
   ylab("Number of Movies") +
   ggtitle("Female Nudity in Movies") +
   geom_line(color = "#cc0066")+
-  annotate("text", x = 1940, y = 155, label = "End of the Hays Code", color="black", face="italic") +
+  annotate("text", x = 1940, y = 155, label = "End of the Hays Code", color="black",
+  face="italic") +
   geom_point(aes(x = 1968, y = 155), size = 4.5, color = "black")+ 
   geom_segment(aes(x = 1956, y = 155, xend = 1969, yend = 155), color = 'black', 
-size = 0.5) +
-  annotate("text", x = 1920, y = 20, label = "Joseph Burstyn, Inc. v. Wilson", color="black", face="italic")+
+  size = 0.5) +
+  annotate("text", x = 1920, y = 20, label = "Joseph Burstyn, Inc. v. Wilson",
+  color="black", face="italic")+
   geom_point(aes(x = 1952, y = 2), size = 4.5, color = "black")+ 
   geom_segment(aes(x = 1944, y = 18, xend = 1952, yend = 2), color = 'black', 
-size = 0.5) +
+  size = 0.5) +
   theme_minimal()
 
 female.nudity.graph
@@ -63,17 +65,17 @@ male.nudity.graph <- ggplot(male.nudity, aes(x=production_year, y=COUNT)) +
   ylab("Number of Movies") +
   ggtitle("Male Nudity in Movies") +
   geom_line(color = "#588fe8")+
-  annotate("text", x = 1940, y = 40, label = "End of the Hays Code", color = "black", face = "italic") +
+  annotate("text", x = 1940, y = 40, label = "End of the Hays Code", color = "black", face
+  = "italic") +
   geom_point( aes (x = 1968, y=40 ), size = 4.5, color = "black")+ 
-geom_segment(aes(x = 1956, y = 40, xend = 1969, yend = 40), color = 'black', 
-size = 0.5) +
-  annotate("text", x = 1920, y = 20, label = "Joseph Burstyn, Inc. v. Wilson", color="black", face="italic") +
-   geom_point(aes(x = 1952, y = 2), size = 4.5, color = "black") + 
+  geom_segment(aes(x = 1956, y = 40, xend = 1969, yend = 40), color = 'black', 
+  size = 0.5) +
+  annotate("text", x = 1920, y = 20, label = "Joseph Burstyn, Inc. v. Wilson",
+  color="black", face="italic") +
+  geom_point(aes(x = 1952, y = 2), size = 4.5, color = "black") + 
   geom_segment(aes(x = 1942, y = 19, xend = 1952, yend = 2), color = 'black', 
-size = 0.5) +
+  size = 0.5) +
   theme_minimal()
-
-
 
 
 
@@ -93,8 +95,8 @@ female.nudity.total <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(*) as COUNT
 FROM keyword AS k
 LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
-LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
-WHERE kind_id='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
+LEFT JOIN title AS t ON t.id = mk.movie_id #join on index movie_id
+WHERE kind_id ='1' AND keyword = 'female-nudity' AND production_year IS NOT NULL
 GROUP BY keyword;")
 
 male.nudity.total <- db %>%
@@ -102,7 +104,7 @@ male.nudity.total <- db %>%
 FROM keyword AS k
 LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
 LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
-WHERE kind_id='1' AND keyword = 'male-nudity' AND production_year IS NOT NULL
+WHERE kind_id = '1' AND keyword = 'male-nudity' AND production_year IS NOT NULL
 GROUP BY keyword;")
 ```
 
@@ -113,8 +115,8 @@ joined.nudity.total <- male.nudity.total %>%
 
 ```{r, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%"}
 nudity.plot <- ggplot(joined.nudity, aes(production_year)) + 
-  geom_line(aes(y = COUNT.x, color = "COUNT.x"))+
-  geom_line(aes(y = COUNT.y, color = "COUNT.y"))+
+  geom_line(aes(y = COUNT.x, color = "COUNT.x")) +
+  geom_line(aes(y = COUNT.y, color = "COUNT.y")) +
   scale_color_manual(values=c("COUNT.x"="#588fe8", "COUNT.y"="#cc0066"),  
               breaks = c("COUNT.y","COUNT.x"),
               labels = c("Female nudity", "Male nudity")) +
@@ -125,14 +127,14 @@ nudity.plot <- ggplot(joined.nudity, aes(production_year)) +
 
 nudity.plot
 
-nudity.plot.bar <- ggplot(joined.nudity.total)+
-  geom_bar(aes(x = keyword.x, y = COUNT.x, fill = "COUNT.x"), stat = "identity", position = "dodge", width = 0.5) +
-  geom_bar(aes(x = keyword.y, y = COUNT.y, fill = "COUNT.y"), stat = "identity", position="dodge", width = 0.5)+
-  scale_fill_manual(values = c("COUNT.x" = "#588fe8", "COUNT.y" = "#cc0066"),  
+nudity.plot.bar <- ggplot(joined.nudity.total) +
+geom_bar(aes(x = keyword.x, y = COUNT.x, fill = "COUNT.x"), stat = "identity", position = "dodge", width = 0.5) +
+geom_bar(aes(x = keyword.y, y = COUNT.y, fill = "COUNT.y"), stat = "identity", position="dodge", width = 0.5)+
+scale_fill_manual(values = c("COUNT.x" = "#588fe8", "COUNT.y" = "#cc0066"),  
               breaks=c("COUNT.y","COUNT.x"),
               labels = c("Female nudity", "Male nudity")) +
-  ggtitle("Total Movies with Male versus Female Nudity") +
-  theme_minimal()
+ggtitle("Total Movies with Male versus Female Nudity") +
+theme_minimal()
 
 nudity.plot.bar
 ```
@@ -141,9 +143,9 @@ nudity.plot.bar
 female.directed <- db %>%
   dbGetQuery("SELECT k.keyword, mk.movie_id, t.title, t.kind_id, t.production_year, COUNT(movie_id) as COUNT
 FROM keyword AS k
-LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
-LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
-WHERE kind_id='1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
+LEFT JOIN movie_keyword AS mk ON mk.keyword_id = k.id #join on index keyword
+LEFT JOIN title AS t ON t.id = mk.movie_id #join on index movie_id
+WHERE kind_id = '1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
 GROUP BY production_year
 ORDER BY production_year;")
 ```
@@ -154,7 +156,7 @@ female.directed.total <- db %>%
 FROM keyword AS k
 LEFT JOIN movie_keyword AS mk ON mk.keyword_id=k.id #join on index keyword
 LEFT JOIN title AS t ON t.id=mk.movie_id #join on index movie_id
-WHERE kind_id='1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
+WHERE kind_id = '1' AND keyword = 'title-directed-by-female' AND production_year IS NOT NULL
 GROUP BY keyword;")
 ```
 
